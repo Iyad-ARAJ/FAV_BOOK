@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: rgb(195, 184, 186);
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row mt-4">
+            <div class="col">
+                <h1>Welcome, {{ user.firstname }}</h1>
+                <hr>
+            </div>
+            <div class="col text-right">
+                <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <!-- Add a Favorite Book Section -->
+            
+            <div class="col-md-6">
+                <h2 class="card-title">Add a Favorite</h2>
+
+                <div class="card">
+                    <div class="card-body">
+                        <form action="/books/addbook/" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="title">Title:</label>
+                                <input type="text" class="form-control" name="title" id="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="desc">Description:</label>
+                                <input type="text" class="form-control" name="desc" id="desc" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </form>
+                    </div>
+                </div>
+                {% for error in messages %}
+                <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+            </div>
+
+            <!-- All Books Section -->
+            <div class="col-md-6">
+                <h2>All Books</h2>
+                {% for book in allbooks reversed  %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><a href="/books/{{ book.id }}">{{ book.title }}</a></h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Added by: {{ book.uploaded_by.firstname }}</h6>
+                            
+                            <h6 class="card-subtitle mb-2 text-muted">Liked by:</h6>
+                            <ul class="list-unstyled">
+                                {% for user in book.users_who_like.all %}
+                                    <li>{{ user.firstname }}</li>
+                                
+                                {% endfor %}
+                            </ul>
+
+                            <!-- Like/Unlike button -->
+                            {% if user in book.users_who_like.all %}
+                                <a href="/books/{{ book.id }}/unfavorite" class="btn btn-warning">Unfavorite</a>
+                                <p class="text-success"><strong>You already like this book</strong></p>
+                            {% else %}
+                                <a href="/books/{{ book.id }}/favorite" class="btn btn-success">Favorite</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

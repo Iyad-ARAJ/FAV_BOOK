@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Detail</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <style>
+        .highlight {
+            background-color: #d4edda; /* Light green background color */
+            padding: 10px; /* Padding around the text */
+            border-radius: 5px; /* Rounded corners */
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+        <!-- Display user's name -->
+        <h1>Welcome {{ user.firstname }} {{user.id}}</h1>
+
+        <!-- Book details -->
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">{{ book.title }}</h2>
+                <p class="card-text">Added by: {{ book.uploaded_by.firstname }} {{ book.uploaded_by.lastname }}</p>
+                <p class="card-text">Added on: {{ book.created_at }}</p>
+                <p class="card-text">Updated at: {{ book.updated_at }}</p>
+                <p class="card-text">Description: {{ book.desc }}</p>
+
+                <!-- Edit and Delete buttons -->
+                {% if request.session.user_id == book.uploaded_by.id %}
+                    <a href="/books/{{ book.id }}/edit" class="btn btn-primary">Edit</a>
+                    <!-- <a href="/books/{{book.id}}/delete" class="btn btn-primary">delete</a>  -->
+                     <form action="/books/delete" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="book_id" value="{{  book.id}}">
+                        <input type="submit" value="Delete" class="btn btn-danger">
+                    </form>
+
+                {% endif %}
+                  
+                <h2 class="mt-4">Users who like this book:</h2>
+                {% for user in book.users_who_like.all %}
+                    <p>{{ user.firstname }}</p>
+                {% endfor %}
+
+                {% if user in book.users_who_like.all %}
+                <p class="text-success highlight"><strong>You already like this book</strong></p>
+                <a href="/books/{{ book.id }}/unfavorite" class="btn btn-warning">Unfavorite</a>
+                {% else %}
+                    <a href="/books/{{ book.id }}/favorite" class="btn btn-success">Favorite</a>
+                {% endif %}
+                <br><br>
+                <a href="/books" class="btn btn-primary">go back to books =></a>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
